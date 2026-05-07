@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sorting Visualizer | BCA Project</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- LIVE BACKGROUND CANVAS -->
+<canvas id="bg-canvas"></canvas>
+
+<header>
+  <div class="header-top">
+    <div></div>
+    <h1>&lt; SORTING VISUALIZER /&gt;</h1>
+    <button class="btn-theme" id="btnTheme" title="Toggle Theme">
+      <span id="themeIcon">☀️</span>
+    </button>
+  </div>
+  <p>Insertion · Quick · Merge — OOP C++ Logic Demonstrated</p>
+</header>
+
+<div class="card">
+
+  <!-- ROW 1: Settings Controls -->
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>Algorithm</label>
+      <select id="algoSelect">
+        <option value="insertion">Insertion Sort</option>
+        <option value="quick">Quick Sort</option>
+        <option value="merge">Merge Sort</option>
+      </select>
+    </div>
+
+    <div class="ctrl-group">
+      <label>Array Size</label>
+      <div class="range-row">
+        <input type="range" id="sizeSlider" min="5" max="40" value="20"/>
+        <span class="range-val" id="sizeVal">20</span>
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <label>Speed</label>
+      <div class="range-row">
+        <input type="range" id="speedSlider" min="1" max="10" value="5"/>
+        <span class="range-val" id="speedVal">5</span>
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <label>Sound</label>
+      <button class="btn-sound on" id="btnSound">🔊 ON</button>
+    </div>
+
+    <div class="ctrl-group ctrl-custom">
+      <label>Custom Array</label>
+      <div class="range-row">
+        <input type="text" id="customInput" placeholder="e.g. 45 12 78 34" />
+        <button class="btn-gen" id="btnLoad">Load</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Action Buttons -->
+  <div class="btn-row">
+    <button class="btn-gen"   id="btnGen">New Array</button>
+    <button class="btn-pause" id="btnPause">⏸ Pause</button>
+    <button class="btn-step"  id="btnStepBack" disabled>◀◀ Step Back</button>
+    <button class="btn-step"  id="btnStepFwd"  disabled>Step Fwd ▶▶</button>
+    <button class="btn-start" id="btnStart">▶ Sort</button>
+    <button class="btn-reset" id="btnReset">↺ Reset</button>
+  </div>
+
+  <!-- MAIN LAYOUT: Visualizer (left) + Code Tracer (right) -->
+  <div class="main-layout">
+
+    <!-- LEFT: Legend + Bars + Progress + Stats -->
+    <div class="viz-section">
+
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--default)"></div> Unsorted</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--compare)"></div> Comparing</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--pivot)"></div> Swapping</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--accent3)"></div> Pivot</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--sorted)"></div> Sorted</div>
+      </div>
+
+      <div class="viz-wrapper">
+        <div id="bar-container"></div>
+        <div class="bar-tooltip" id="barTooltip"></div>
+      </div>
+
+      <div class="step-progress-wrap">
+        <div class="step-progress-bar" id="stepProgress"></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-label">Comparisons</div>
+          <div class="stat-val" id="statComp">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Swaps</div>
+          <div class="stat-val" id="statSwap">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Array Size</div>
+          <div class="stat-val" id="statSize">20</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Step</div>
+          <div class="stat-val" id="statStep">0 / 0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Status</div>
+          <div class="stat-val" id="statStatus">READY</div>
+        </div>
+      </div>
+
+    </div><!-- .viz-section -->
+
+    <!-- RIGHT: Code Tracer -->
+    <div class="code-tracer-container">
+      <div class="tracer-title">Algorithm Trace</div>
+      <div id="code-display"></div>
+    </div>
+
+  </div><!-- .main-layout -->
+
+  <!-- Complexity Table -->
+  <div class="table-container">
+    <div class="complexity-title">Time &amp; Space Complexity</div>
+    <table id="complexTable">
+      <thead>
+        <tr>
+          <th>Algorithm</th>
+          <th>Best Case</th>
+          <th>Average Case</th>
+          <th>Worst Case</th>
+          <th>Space</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="row-insertion">
+          <td>Insertion Sort</td>
+          <td class="good">O(n)</td>
+          <td class="avg">O(n²)</td>
+          <td class="bad">O(n²)</td>
+          <td class="good">O(1)</td>
+        </tr>
+        <tr id="row-quick">
+          <td>Quick Sort</td>
+          <td class="good">O(n log n)</td>
+          <td class="good">O(n log n)</td>
+          <td class="bad">O(n²)</td>
+          <td class="good">O(log n)</td>
+        </tr>
+        <tr id="row-merge">
+          <td>Merge Sort</td>
+          <td class="good">O(n log n)</td>
+          <td class="good">O(n log n)</td>
+          <td class="good">O(n log n)</td>
+          <td class="avg">O(n)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- .card -->
+
+<script src="script.js"></script>
+</body>
+</html>
